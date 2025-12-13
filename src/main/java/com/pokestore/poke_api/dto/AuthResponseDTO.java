@@ -1,9 +1,25 @@
 package com.pokestore.poke_api.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Respuesta de operaciones de autenticación")
 public class AuthResponseDTO {
 
+    @Schema(
+            description = "Indica si la operación fue exitosa",
+            example = "true"
+    )
     private boolean success;
+
+    @Schema(
+            description = "Mensaje descriptivo del resultado de la operación",
+            example = "Login exitoso"
+    )
     private String message;
+
+    @Schema(
+            description = "Datos del usuario (solo presente si la operación fue exitosa)"
+    )
     private UserDTO user;
 
     public AuthResponseDTO() {

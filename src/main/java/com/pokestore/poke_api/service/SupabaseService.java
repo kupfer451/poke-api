@@ -3,8 +3,10 @@ package com.pokestore.poke_api.service;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -23,7 +25,11 @@ public class SupabaseService {
         return webClient.get()
                 .uri("/rest/v1/" + table)
                 .retrieve()
-                .bodyToMono(responseType);
+                .bodyToMono(responseType)
+                .onErrorResume(WebClientResponseException.class, e -> {
+                    System.err.println("Error en selectAll: " + e.getResponseBodyAsString());
+                    return Mono.just(Collections.emptyList());
+                });
     }
 
     /**
@@ -33,7 +39,11 @@ public class SupabaseService {
         return webClient.get()
                 .uri("/rest/v1/" + table + "?id=eq." + id)
                 .retrieve()
-                .bodyToMono(responseType);
+                .bodyToMono(responseType)
+                .onErrorResume(WebClientResponseException.class, e -> {
+                    System.err.println("Error en selectById: " + e.getResponseBodyAsString());
+                    return Mono.just(Collections.emptyList());
+                });
     }
 
     /**
@@ -43,7 +53,11 @@ public class SupabaseService {
         return webClient.get()
                 .uri("/rest/v1/" + table + "?" + filter)
                 .retrieve()
-                .bodyToMono(responseType);
+                .bodyToMono(responseType)
+                .onErrorResume(WebClientResponseException.class, e -> {
+                    System.err.println("Error en selectWithFilter: " + e.getResponseBodyAsString());
+                    return Mono.just(Collections.emptyList());
+                });
     }
 
     /**
@@ -54,7 +68,11 @@ public class SupabaseService {
                 .uri("/rest/v1/" + table)
                 .bodyValue(body)
                 .retrieve()
-                .bodyToMono(responseType);
+                .bodyToMono(responseType)
+                .onErrorResume(WebClientResponseException.class, e -> {
+                    System.err.println("Error en insert: " + e.getResponseBodyAsString());
+                    return Mono.just(Collections.emptyList());
+                });
     }
 
     /**
@@ -65,7 +83,11 @@ public class SupabaseService {
                 .uri("/rest/v1/" + table + "?id=eq." + id)
                 .bodyValue(body)
                 .retrieve()
-                .bodyToMono(responseType);
+                .bodyToMono(responseType)
+                .onErrorResume(WebClientResponseException.class, e -> {
+                    System.err.println("Error en update: " + e.getResponseBodyAsString());
+                    return Mono.just(Collections.emptyList());
+                });
     }
 
     /**
@@ -75,6 +97,10 @@ public class SupabaseService {
         return webClient.delete()
                 .uri("/rest/v1/" + table + "?id=eq." + id)
                 .retrieve()
-                .bodyToMono(Void.class);
+                .bodyToMono(Void.class)
+                .onErrorResume(WebClientResponseException.class, e -> {
+                    System.err.println("Error en delete: " + e.getResponseBodyAsString());
+                    return Mono.empty();
+                });
     }
 }

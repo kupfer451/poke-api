@@ -1,11 +1,43 @@
 package com.pokestore.poke_api.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Datos requeridos para crear un nuevo usuario")
 public class CreateUserDTO {
 
+    @Schema(
+            description = "Nombre de usuario único",
+            example = "juanperez",
+            requiredMode = Schema.RequiredMode.REQUIRED
+    )
     private String username;
+
+    @Schema(
+            description = "Contraseña del usuario (será hasheada antes de almacenar)",
+            example = "miContraseña123",
+            requiredMode = Schema.RequiredMode.REQUIRED
+    )
     private String password;
+
+    @Schema(
+            description = "Email único del usuario",
+            example = "juan@ejemplo.com",
+            requiredMode = Schema.RequiredMode.REQUIRED
+    )
     private String email;
+
+    @Schema(
+            description = "RUT chileno único (con guión y dígito verificador)",
+            example = "12345678-9",
+            requiredMode = Schema.RequiredMode.REQUIRED
+    )
     private String rut;
+
+    @Schema(
+            description = "Indica si el usuario tendrá permisos de administrador",
+            example = "false",
+            defaultValue = "false"
+    )
     private Boolean isAdmin;
 
     public CreateUserDTO() {
@@ -19,7 +51,6 @@ public class CreateUserDTO {
         this.isAdmin = isAdmin;
     }
 
-    // Getters y Setters
     public String getUsername() {
         return username;
     }
