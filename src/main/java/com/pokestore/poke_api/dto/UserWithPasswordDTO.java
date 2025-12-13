@@ -4,10 +4,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Instant;
 import java.util.UUID;
 
-public class UserDTO {
+/**
+ * DTO interno para leer usuarios con hash_pass desde Supabase
+ */
+public class UserWithPasswordDTO {
 
     private UUID id;
     private String username;
+    
+    @JsonProperty("hash_pass")
+    private String hashPass;
+    
     private String email;
     private String rut;
     
@@ -17,21 +24,9 @@ public class UserDTO {
     @JsonProperty("created_at")
     private Instant createdAt;
 
-    // Constructor vacío
-    public UserDTO() {
+    public UserWithPasswordDTO() {
     }
 
-    // Constructor completo (sin password para seguridad)
-    public UserDTO(UUID id, String username, String email, String rut, Boolean isAdmin, Instant createdAt) {
-        this.id = id;
-        this.username = username;
-        this.email = email;
-        this.rut = rut;
-        this.isAdmin = isAdmin != null ? isAdmin : false;
-        this.createdAt = createdAt;
-    }
-
-    // Getters y Setters
     public UUID getId() {
         return id;
     }
@@ -46,6 +41,14 @@ public class UserDTO {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getHashPass() {
+        return hashPass;
+    }
+
+    public void setHashPass(String hashPass) {
+        this.hashPass = hashPass;
     }
 
     public String getEmail() {
@@ -78,5 +81,12 @@ public class UserDTO {
 
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
+    }
+
+    /**
+     * Convierte a UserDTO (sin password)
+     */
+    public UserDTO toUserDTO() {
+        return new UserDTO(id, username, email, rut, isAdmin != null ? isAdmin : false, createdAt);
     }
 }

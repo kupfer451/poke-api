@@ -1,6 +1,6 @@
 package com.pokestore.poke_api.model;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -13,17 +13,19 @@ public class User {
     private String hashPass;
     private String email;
     private String rut;
-    private LocalDateTime createdAt;
+    private Boolean isAdmin;
+    private Instant createdAt;
 
     // Constructores
     public User() {
     }
 
-    public User(String username, String hashPass, String email, String rut) {
+    public User(String username, String hashPass, String email, String rut, Boolean isAdmin) {
         this.username = username;
         this.hashPass = hashPass;
         this.email = email;
         this.rut = rut;
+        this.isAdmin = isAdmin != null ? isAdmin : false;
     }
 
     // Getters y Setters
@@ -67,11 +69,19 @@ public class User {
         this.rut = rut;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Boolean getIsAdmin() {
+        return isAdmin;
+    }
+
+    public void setIsAdmin(Boolean isAdmin) {
+        this.isAdmin = isAdmin;
+    }
+
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 }

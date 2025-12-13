@@ -6,15 +6,17 @@ public class CreateUserDTO {
     private String password;
     private String email;
     private String rut;
+    private Boolean isAdmin;
 
     public CreateUserDTO() {
     }
 
-    public CreateUserDTO(String username, String password, String email, String rut) {
+    public CreateUserDTO(String username, String password, String email, String rut, Boolean isAdmin) {
         this.username = username;
         this.password = password;
         this.email = email;
         this.rut = rut;
+        this.isAdmin = isAdmin;
     }
 
     // Getters y Setters
@@ -48,5 +50,13 @@ public class CreateUserDTO {
 
     public void setRut(String rut) {
         this.rut = rut;
+    }
+
+    public Boolean getIsAdmin() {
+        return isAdmin;
+    }
+
+    public void setIsAdmin(Boolean isAdmin) {
+        this.isAdmin = isAdmin;
     }
 }
