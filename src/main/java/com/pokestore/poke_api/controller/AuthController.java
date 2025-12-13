@@ -4,6 +4,7 @@ import com.pokestore.poke_api.dto.AuthResponseDTO;
 import com.pokestore.poke_api.dto.CreateUserDTO;
 import com.pokestore.poke_api.dto.LoginDTO;
 import com.pokestore.poke_api.service.AuthService;
+import com.pokestore.poke_api.service.JwtService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -23,15 +24,17 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtService jwtService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, JwtService jwtService) {
         this.authService = authService;
+        this.jwtService = jwtService;
     }
 
     @Operation(
             summary = "Registrar nuevo usuario",
             description = "Crea una nueva cuenta de usuario con email, contraseña, RUT y nombre de usuario. " +
-                    "El email y RUT deben ser únicos en el sistema."
+                    "El email y RUT deben ser únicos en el sistema. Retorna un token JWT."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -71,12 +74,12 @@ public class AuthController {
     @Operation(
             summary = "Iniciar sesión",
             description = "Autentica un usuario existente con su email y contraseña. " +
-                    "Retorna la información del usuario si las credenciales son válidas."
+                    "Retorna la información del usuario y un token JWT si las credenciales son válidas."
     )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Login exitoso",
+                    description = "Login exitoso - Token JWT incluido en la respuesta",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = AuthResponseDTO.class)
@@ -106,6 +109,54 @@ public class AuthController {
                     }
                     return ResponseEntity.status(401).body(response);
                 });
+    }
+
+    @Operation(
+            summary = "Validar token JWT",
+            description = "Verifica si un token JWT es válido y no ha expirado"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Resultado de la validación del token"
+            )
+    })
+    @PostMapping("/validate-token")
+    public ResponseEntity<Map<String, Object>> validateToken(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Token JWT a validar",
+                    required = true
+            )
+            @RequestBody Map<String, String> request) {
+        String token = request.get("token");
+
+        if (token == null || token.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "valid", false,
+                    "message", "Token no proporcionado"
+            ));
+        }
+
+        try {
+            if (jwtService.isTokenValid(token)) {
+                String userId = jwtService.getUserIdFromToken(token);
+                return ResponseEntity.ok(Map.of(
+                        "valid", true,
+                        "userId", userId,
+                        "message", "Token válido"
+                ));
+            } else {
+                return ResponseEntity.ok(Map.of(
+                        "valid", false,
+                        "message", "Token inválido o expirado"
+                ));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.ok(Map.of(
+                    "valid", false,
+                    "message", "Token inválido: " + e.getMessage()
+            ));
+        }
     }
 
     @Operation(

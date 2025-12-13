@@ -14,10 +14,12 @@ import java.util.Map;
 public class AuthService {
 
     private final SupabaseService supabaseService;
+    private final JwtService jwtService;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public AuthService(SupabaseService supabaseService) {
+    public AuthService(SupabaseService supabaseService, JwtService jwtService) {
         this.supabaseService = supabaseService;
+        this.jwtService = jwtService;
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
@@ -53,7 +55,9 @@ public class AuthService {
                                             if (list == null || list.isEmpty()) {
                                                 return Mono.just(AuthResponseDTO.error("Error al crear usuario"));
                                             }
-                                            return Mono.just(AuthResponseDTO.success("Usuario registrado exitosamente", list.get(0)));
+                                            UserDTO user = list.get(0);
+                                            String token = jwtService.generateToken(user.getId(), user.getEmail(), user.getIsAdmin());
+                                            return Mono.just(AuthResponseDTO.success("Usuario registrado exitosamente", user, token));
                                         });
                             });
                 });
@@ -79,7 +83,9 @@ public class AuthService {
                         return Mono.just(AuthResponseDTO.error("Contraseña incorrecta"));
                     }
                     
-                    return Mono.just(AuthResponseDTO.success("Login exitoso", user.toUserDTO()));
+                    UserDTO userDTO = user.toUserDTO();
+                    String token = jwtService.generateToken(userDTO.getId(), userDTO.getEmail(), userDTO.getIsAdmin());
+                    return Mono.just(AuthResponseDTO.success("Login exitoso", userDTO, token));
                 });
     }
 
@@ -95,7 +101,7 @@ public class AuthService {
                     if (list == null || list.isEmpty()) {
                         return Mono.just(AuthResponseDTO.error("Usuario no encontrado"));
                     }
-                    return Mono.just(AuthResponseDTO.success("Usuario encontrado", list.get(0)));
+                    return Mono.just(AuthResponseDTO.success("Usuario encontrado", list.get(0), null));
                 });
     }
 
