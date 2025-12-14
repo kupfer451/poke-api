@@ -1,6 +1,8 @@
 package com.pokestore.poke_api.controller;
 
+import com.pokestore.poke_api.dto.CreateProductDTO;
 import com.pokestore.poke_api.dto.ProductDTO;
+import com.pokestore.poke_api.security.AdminOnly;
 import com.pokestore.poke_api.service.SupabaseService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -123,7 +125,7 @@ public class ProductController {
 
     @Operation(
             summary = "Crear nuevo producto",
-            description = "Agrega un nuevo producto al catálogo"
+            description = "Agrega un nuevo producto al catálogo. **Requiere rol de administrador.**"
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -137,17 +139,26 @@ public class ProductController {
             @ApiResponse(
                     responseCode = "400",
                     description = "Error al crear producto - datos inválidos"
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Token de autenticación requerido"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Acceso denegado - Se requiere rol de administrador"
             )
     })
+    @AdminOnly
     @PostMapping
     public Mono<ResponseEntity<ProductDTO>> createProduct(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Datos del nuevo producto",
                     required = true,
-                    content = @Content(schema = @Schema(implementation = ProductDTO.class))
+                    content = @Content(schema = @Schema(implementation = CreateProductDTO.class))
             )
-            @RequestBody ProductDTO productDTO) {
-        return supabaseService.insert("products", productDTO, new ParameterizedTypeReference<List<ProductDTO>>() {})
+            @RequestBody CreateProductDTO createProductDTO) {
+        return supabaseService.insert("products", createProductDTO, new ParameterizedTypeReference<List<ProductDTO>>() {})
                 .flatMap(list -> {
                     if (list == null || list.isEmpty()) {
                         return Mono.just(ResponseEntity.<ProductDTO>badRequest().build());
@@ -158,7 +169,7 @@ public class ProductController {
 
     @Operation(
             summary = "Actualizar producto",
-            description = "Actualiza la información de un producto existente"
+            description = "Actualiza la información de un producto existente. **Requiere rol de administrador.**"
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -170,10 +181,19 @@ public class ProductController {
                     )
             ),
             @ApiResponse(
+                    responseCode = "401",
+                    description = "Token de autenticación requerido"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Acceso denegado - Se requiere rol de administrador"
+            ),
+            @ApiResponse(
                     responseCode = "404",
                     description = "Producto no encontrado"
             )
     })
+    @AdminOnly
     @PatchMapping("/{id}")
     public Mono<ResponseEntity<ProductDTO>> updateProduct(
             @Parameter(
@@ -185,9 +205,9 @@ public class ProductController {
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Campos del producto a actualizar",
                     required = true,
-                    content = @Content(schema = @Schema(implementation = ProductDTO.class))
+                    content = @Content(schema = @Schema(implementation = CreateProductDTO.class))
             )
-            @RequestBody ProductDTO productDTO) {
+            @RequestBody CreateProductDTO productDTO) {
         return supabaseService.update("products", id, productDTO, new ParameterizedTypeReference<List<ProductDTO>>() {})
                 .flatMap(list -> {
                     if (list == null || list.isEmpty()) {
@@ -199,7 +219,7 @@ public class ProductController {
 
     @Operation(
             summary = "Eliminar producto",
-            description = "Elimina permanentemente un producto del catálogo"
+            description = "Elimina permanentemente un producto del catálogo. **Requiere rol de administrador.**"
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -207,10 +227,19 @@ public class ProductController {
                     description = "Producto eliminado exitosamente"
             ),
             @ApiResponse(
+                    responseCode = "401",
+                    description = "Token de autenticación requerido"
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Acceso denegado - Se requiere rol de administrador"
+            ),
+            @ApiResponse(
                     responseCode = "404",
                     description = "Producto no encontrado"
             )
     })
+    @AdminOnly
     @DeleteMapping("/{id}")
     public Mono<ResponseEntity<Void>> deleteProduct(
             @Parameter(

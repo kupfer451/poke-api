@@ -55,4 +55,12 @@ public class JwtService {
     public String getUserIdFromToken(String token) {
         return validateToken(token).getSubject();
     }
+
+    public String getEmailFromToken(String token) {
+        return validateToken(token).get("email", String.class);
+    }
+
+    public Boolean getIsAdminFromToken(String token) {
+        return validateToken(token).get("isAdmin", Boolean.class);
+    }
 }

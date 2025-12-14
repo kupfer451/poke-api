@@ -69,8 +69,9 @@ public class SupabaseService {
                 .bodyValue(body)
                 .retrieve()
                 .bodyToMono(responseType)
+                .doOnNext(result -> System.out.println("Insert exitoso en " + table + ": " + result))
                 .onErrorResume(WebClientResponseException.class, e -> {
-                    System.err.println("Error en insert: " + e.getResponseBodyAsString());
+                    System.err.println("Error en insert (" + table + "): " + e.getStatusCode() + " - " + e.getResponseBodyAsString());
                     return Mono.just(Collections.emptyList());
                 });
     }
@@ -100,6 +101,20 @@ public class SupabaseService {
                 .bodyToMono(Void.class)
                 .onErrorResume(WebClientResponseException.class, e -> {
                     System.err.println("Error en delete: " + e.getResponseBodyAsString());
+                    return Mono.empty();
+                });
+    }
+
+    /**
+     * DELETE: Elimina registros con filtro personalizado
+     */
+    public Mono<Void> deleteWithFilter(String table, String filter) {
+        return webClient.delete()
+                .uri("/rest/v1/" + table + "?" + filter)
+                .retrieve()
+                .bodyToMono(Void.class)
+                .onErrorResume(WebClientResponseException.class, e -> {
+                    System.err.println("Error en deleteWithFilter: " + e.getResponseBodyAsString());
                     return Mono.empty();
                 });
     }

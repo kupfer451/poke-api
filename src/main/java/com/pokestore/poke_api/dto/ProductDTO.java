@@ -3,7 +3,7 @@ package com.pokestore.poke_api.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Schema(description = "Información del producto")
@@ -41,21 +41,36 @@ public class ProductDTO {
     private String description;
 
     @Schema(
+            description = "Categoría del producto",
+            example = "Peluches"
+    )
+    private String category;
+
+    @Schema(
+            description = "URL de la imagen del producto",
+            example = "https://ejemplo.com/imagen.jpg"
+    )
+    @JsonProperty("image_url")
+    private String imageUrl;
+
+    @Schema(
             description = "Fecha y hora de creación del producto",
-            example = "2025-01-15T10:30:00"
+            example = "2025-01-15T10:30:00Z"
     )
     @JsonProperty("created_at")
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     public ProductDTO() {
     }
 
-    public ProductDTO(UUID id, String productName, BigDecimal price, Integer quantity, String description, LocalDateTime createdAt) {
+    public ProductDTO(UUID id, String productName, BigDecimal price, Integer quantity, String description, String category, String imageUrl, Instant createdAt) {
         this.id = id;
         this.productName = productName;
         this.price = price;
         this.quantity = quantity;
         this.description = description;
+        this.category = category;
+        this.imageUrl = imageUrl;
         this.createdAt = createdAt;
     }
 
@@ -99,11 +114,27 @@ public class ProductDTO {
         this.description = description;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 }
